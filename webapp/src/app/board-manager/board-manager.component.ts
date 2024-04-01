@@ -5,16 +5,16 @@ import { UserService } from '../_services/user.service';
   selector: 'app-board-moderator',
   standalone: true,
   imports: [],
-  templateUrl: './board-moderator.component.html',
-  styleUrl: './board-moderator.component.css'
+  templateUrl: './board-manager.component.html',
+  styleUrl: './board-manager.component.css'
 })
-export class BoardModeratorComponent implements OnInit {
+export class BoardManagerComponent implements OnInit {
   public content?: string;
 
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
-    this.userService.getModeratorBoard().subscribe({
+    this.userService.getManagerBoard().subscribe({
       next: data => {
         this.content = data;
       },
