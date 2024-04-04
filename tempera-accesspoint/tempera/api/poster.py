@@ -33,7 +33,7 @@ async def post(uuid: str):
     body = measurement.callback
     print(body)
     rc = requests.post(measurement.endpoint, data=json.dumps(body))
-    if rc.status_code == 200:
+    if rc.status_code == 201:
         print(rc.json())
         delete_measurements(sensor_id=measurement.sensor_id)
     else:
