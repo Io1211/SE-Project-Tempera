@@ -1,7 +1,7 @@
 package at.qe.skeleton.controllers;
 
 import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.services.UserService;
+import at.qe.skeleton.services.UserxService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +15,9 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserManagementController{
 
-    private final UserService userService;
+    private final UserxService userService;
 
-    public UserManagementController(UserService userService) {
+    public UserManagementController(UserxService userService) {
         this.userService = userService;
     }
 
