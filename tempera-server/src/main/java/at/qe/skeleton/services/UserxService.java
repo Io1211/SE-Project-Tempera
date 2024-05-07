@@ -6,9 +6,9 @@ import at.qe.skeleton.rest.frontend.dtos.UserxDto;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.enums.Visibility;
 import at.qe.skeleton.repositories.UserxRepository;
-import java.util.Collection;
+
+import java.util.*;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -151,7 +151,7 @@ public class UserxService implements UserDetailsService {
     user.setLastName(userxDTO.getLastName());
     user.setPassword(passwordEncoder.encode(userxDTO.getPassword()));
     user.setEmail(userxDTO.getEmail());
-    user.setRoles(userxDTO.getRoles());
+    user.setRoles(new HashSet<>(userxDTO.getRoles()));
     user.setEnabled(userxDTO.isEnabled());
     user.setUpdateDate(LocalDateTime.now());
     user.setUpdateUser(getAuthenticatedUser());
@@ -166,7 +166,7 @@ public class UserxService implements UserDetailsService {
     userxDTO.setPassword(user.getPassword());
     userxDTO.setEmail(user.getEmail());
     userxDTO.setEnabled(user.isEnabled());
-    userxDTO.setRoles(user.getRoles());
+    userxDTO.setRoles(new ArrayList<>(user.getRoles()));
     return userxDTO;
   }
 
@@ -178,7 +178,7 @@ public class UserxService implements UserDetailsService {
     user.setPassword(userxDTO.getPassword());
     user.setEmail(userxDTO.getEmail());
     user.setEnabled(userxDTO.isEnabled());
-    user.setRoles(userxDTO.getRoles());
+    user.setRoles(new HashSet<>(userxDTO.getRoles()));
     return user;
   }
 

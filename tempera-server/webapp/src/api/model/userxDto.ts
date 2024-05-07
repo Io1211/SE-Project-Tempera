@@ -18,7 +18,7 @@ export interface UserxDto {
     email: string;
     password: string;
     enabled?: boolean;
-    roles?: Set<UserxDto.RolesEnum>;
+    roles?: Array<UserxDto.RolesEnum>;
 }
 export namespace UserxDto {
     export type RolesEnum = 'ADMIN' | 'MANAGER' | 'GROUPLEAD' | 'EMPLOYEE';

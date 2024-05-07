@@ -4,7 +4,7 @@ import at.qe.skeleton.model.enums.UserxRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Set;
+import java.util.List;
 
 public class UserxDto {
   @NotNull @NotEmpty private String username;
@@ -13,7 +13,10 @@ public class UserxDto {
   @NotNull @NotEmpty private String email;
   @NotNull @NotEmpty private String password;
   private boolean enabled;
-  private Set<UserxRole> roles;
+  /**
+   * Use list because frontend has problems with Set
+   */
+  private List<UserxRole> roles;
 
   public void UserxDTO(
       String username,
@@ -21,7 +24,7 @@ public class UserxDto {
       String lastName,
       String email,
       boolean enabled,
-      Set<UserxRole> roles) {
+      List<UserxRole> roles) {
     this.username = username;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -78,11 +81,11 @@ public class UserxDto {
     this.enabled = enabled;
   }
 
-  public Set<UserxRole> getRoles() {
+  public List<UserxRole> getRoles() {
     return roles;
   }
 
-  public void setRoles(Set<UserxRole> roles) {
+  public void setRoles(List<UserxRole> roles) {
     this.roles = roles;
   }
 }
