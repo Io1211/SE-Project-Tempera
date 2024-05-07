@@ -35,7 +35,7 @@
     </div>
     <div class="w-full lg:w-1/3 p-4">
       <div class="card h-full">
-        <p-table [value]="this.homeData.colleagueStates">
+        <p-table [value]="this.homeData.colleagueStates ?? []">
           <ng-template pTemplate="header">
             <tr>
               <th>Name</th>

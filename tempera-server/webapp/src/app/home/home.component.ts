@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { HomeService } from '../_services/home.service';
-import { State } from '../models/user.model';
 import { DatePipe, NgIf } from '@angular/common';
 import { MessageModule } from 'primeng/message';
-import { HomeData } from '../models/home-data.model';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { ColleagueStateDto, HomeControllerService, HomeDataResponse } from '../../api';
+import StateEnum = ColleagueStateDto.StateEnum;
 
 @Component({
   selector: 'app-home',
@@ -23,14 +22,14 @@ import { TagModule } from 'primeng/tag';
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
-  public homeData?: HomeData;
+  public homeData?: HomeDataResponse;
 
 
-  constructor(private homeService: HomeService) {
+  constructor(private homeService: HomeControllerService) {
   }
 
   ngOnInit(): void {
-    this.homeService.getHomeData().subscribe({
+    this.homeService.homeData().subscribe({
       next: data => {
         this.homeData = data;
       },
@@ -40,30 +39,30 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  getSeverity(state: State) {
+  getSeverity(state: StateEnum) {
     switch (state) {
-      case State.AVAILABLE:
+      case StateEnum.Available:
         return 'success';
-      case State.MEETING:
+      case StateEnum.Meeting:
         return 'warning';
-      case State.DEEPWORK:
+      case StateEnum.Deepwork:
         return 'info';
-      case State.OUT_OF_OFFICE:
+      case StateEnum.OutOfOffice:
         return 'danger';
       default:
         return 'primary';
     }
   }
 
-  showState(state: State | undefined) {
+  showState(state: StateEnum | undefined) {
     switch (state) {
-      case State.AVAILABLE:
+      case StateEnum.Available:
         return 'Available';
-      case State.MEETING:
+      case StateEnum.Meeting:
         return 'In a meeting';
-      case State.DEEPWORK:
+      case StateEnum.Deepwork:
         return 'Deep work';
-      case State.OUT_OF_OFFICE:
+      case StateEnum.OutOfOffice:
         return 'Out of office';
       default:
         return 'Unknown';
