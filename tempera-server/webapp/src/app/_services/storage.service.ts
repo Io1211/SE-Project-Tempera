@@ -11,7 +11,8 @@ export class StorageService {
     window.sessionStorage.clear();
   }
 
-  public saveUser(user: User): void {
+  // todo: don't return any (and change types for other methods)
+  public saveUser(user: any): void {
     window.sessionStorage.removeItem(USER_KEY);
     window.sessionStorage.setItem(USER_KEY, JSON.stringify(user));
   }

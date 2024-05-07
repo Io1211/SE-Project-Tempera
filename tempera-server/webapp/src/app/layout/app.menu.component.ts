@@ -2,8 +2,8 @@ import { OnInit, Component } from '@angular/core';
 import { LayoutService } from './service/app.layout.service';
 import { AppMenuitemComponent } from './app.menuitem.component';
 import { NgFor, NgIf } from '@angular/common';
-import { AuthService } from '../_services/auth.service';
 import { StorageService } from '../_services/storage.service';
+import { AuthControllerService } from '../../api';
 
 @Component({
   selector: 'app-menu',
@@ -15,7 +15,7 @@ export class AppMenuComponent implements OnInit {
 
   model: any[] = [];
 
-  constructor(public layoutService: LayoutService, private authService: AuthService, private storageService: StorageService) {
+  constructor(public layoutService: LayoutService, private authService: AuthControllerService, private storageService: StorageService) {
   }
 
   ngOnInit() {
@@ -43,7 +43,7 @@ export class AppMenuComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout().subscribe({
+    this.authService.logoutUser().subscribe({
       next: res => {
         console.log(res);
         this.storageService.clean();

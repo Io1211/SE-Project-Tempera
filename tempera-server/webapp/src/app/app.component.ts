@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { StorageService } from './_services/storage.service';
-import { AuthService } from './_services/auth.service';
 import { NgIf } from '@angular/common';
 import { PrimeNGConfig } from 'primeng/api';
+import { AuthControllerService } from '../api';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +30,7 @@ export class AppComponent implements OnInit {
     this.showModeratorMenu = !this.showModeratorMenu;
   }
 
-  constructor(private storageService: StorageService, private authService: AuthService, private primengConfig: PrimeNGConfig) {
+  constructor(private storageService: StorageService, private authService: AuthControllerService, private primengConfig: PrimeNGConfig) {
   }
 
   ngOnInit(): void {
@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
   }
 
   public logout(): void {
-    this.authService.logout().subscribe({
+    this.authService.logoutUser().subscribe({
       next: res => {
         console.log(res);
         this.storageService.clean();
