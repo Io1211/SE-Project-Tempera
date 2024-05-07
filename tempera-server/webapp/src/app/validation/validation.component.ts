@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { UsersService } from '../_services/users.service';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { MessageModule } from 'primeng/message';
@@ -8,6 +7,7 @@ import { ChipsModule } from 'primeng/chips';
 import { ButtonModule } from 'primeng/button';
 import { MessagesModule } from 'primeng/messages';
 import { Message } from 'primeng/api';
+import { UserManagementControllerService } from '../../api';
 
 @Component({
   selector: 'app-validation',
@@ -30,7 +30,7 @@ export class ValidationComponent {
   enabled: boolean = false;
   messages: Message[] = [];
 
-  constructor(private route: ActivatedRoute, private usersService: UsersService) {
+  constructor(private route: ActivatedRoute, private usersService: UserManagementControllerService) {
   }
 
 
@@ -40,7 +40,7 @@ export class ValidationComponent {
       return;
     }
     this.userId = username;
-    this.usersService.validateUser(username, password).subscribe({
+    this.usersService.validateUser({ username, password }).subscribe({
       next: (data) => {
         if (data !== null) {
           this.validated = true;
@@ -57,7 +57,7 @@ export class ValidationComponent {
 
   setPassword(password: string, passwordRepeat: string) {
     if (password === passwordRepeat) {
-      this.usersService.enableUser(this.userId, password).subscribe({
+      this.usersService.enableUser({ username: this.userId, password }).subscribe({
         next: (data) => {
           if (data !== null) {
             this.enabled = true;

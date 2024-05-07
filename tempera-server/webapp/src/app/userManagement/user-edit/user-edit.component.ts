@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UsersService } from '../../_services/users.service';
 import { NgForOf, NgIf } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
-import { User } from '../../models/user.model';
+import { UserManagementControllerService, UserxDto } from '../../../api';
+import RolesEnum = UserxDto.RolesEnum;
 
 @Component({
   selector: 'app-user-edit',
@@ -18,12 +18,12 @@ import { User } from '../../models/user.model';
 export class UserEditComponent implements OnInit {
   userForm: FormGroup;
   username!: string;
-  roles: string[];
-  @Input({ required: true }) user!: User;
+  roles: RolesEnum[];
+  @Input({ required: true }) user!: UserxDto;
   @Output() editCompleted = new EventEmitter<boolean>();
 
 
-  constructor(private fb: FormBuilder, private usersService: UsersService) {
+  constructor(private fb: FormBuilder, private usersService: UserManagementControllerService) {
     this.roles = ['ADMIN', 'EMPLOYEE', 'MANAGER', 'GROUPLEAD'];
     this.userForm = this.fb.group({
       username: '',
@@ -43,7 +43,7 @@ export class UserEditComponent implements OnInit {
 
   ngOnInit() {
     this.username = this.user.username;
-    this.usersService.getUserById(this.username).subscribe({
+    this.usersService.getUser(this.username).subscribe({
       next: (data) => {
         this.user = data;
         this.populateForm();
@@ -74,7 +74,7 @@ export class UserEditComponent implements OnInit {
       });
       const rolesControl = this.userForm.get('roles') as FormGroup;
       this.roles.forEach(role => {
-        rolesControl.get(role)?.setValue(this.user.roles.includes(role));
+        rolesControl.get(role)?.setValue(this.user.roles?.includes(role));
       });
     }
   }

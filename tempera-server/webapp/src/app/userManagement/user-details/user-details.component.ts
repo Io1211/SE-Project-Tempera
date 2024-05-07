@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UsersService } from '../../_services/users.service';
 import { NgForOf, NgIf } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { User } from '../../models/user.model';
 import { CardModule } from 'primeng/card';
+import { UserManagementControllerService, UserxDto } from '../../../api';
 
 @Component({
   selector: 'app-user-details',
@@ -19,12 +18,12 @@ import { CardModule } from 'primeng/card';
   styleUrls: ['./user-details.component.css'],
 })
 export class UserDetailsComponent implements OnInit {
-  user: User | undefined;
+  user: UserxDto | undefined;
   userId: string | null | undefined;
 
   constructor(
     private route: ActivatedRoute,
-    private usersService: UsersService,
+    private usersService: UserManagementControllerService,
   ) {
   }
 
@@ -36,7 +35,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   fetchUserDetails(id: string) {
-    this.usersService.getUserById(id).subscribe({
+    this.usersService.getUser(id).subscribe({
       next: (data) => {
         this.user = data;
         console.log('User details: ', this.user);

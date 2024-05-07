@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { UsersService } from '../../_services/users.service';
 import { NgForOf, NgIf } from '@angular/common';
 import { User } from '../../models/user.model';
 import { TableModule } from 'primeng/table';
@@ -10,6 +9,7 @@ import { UserEditComponent } from '../user-edit/user-edit.component';
 import { DialogModule } from 'primeng/dialog';
 import { UserCreateComponent } from '../user-create/user-create.component';
 import { MessagesModule } from 'primeng/messages';
+import { UserManagementControllerService, UserxDto } from '../../../api';
 
 @Component({
   selector: 'app-users',
@@ -30,14 +30,14 @@ import { MessagesModule } from 'primeng/messages';
 })
 export class UsersComponent implements OnInit {
 
-  users: User[] = [];
-  filteredUsers: User[] = [];
+  users: UserxDto[] = [];
+  filteredUsers: UserxDto[] = [];
   displayEditDialog: boolean = false;
   selectedUser: any;
   displayCreateDialog: boolean = false;
   messages: any;
 
-  constructor(private usersService: UsersService, private router: Router) {
+  constructor(private usersService: UserManagementControllerService, private router: Router) {
 
   }
 
