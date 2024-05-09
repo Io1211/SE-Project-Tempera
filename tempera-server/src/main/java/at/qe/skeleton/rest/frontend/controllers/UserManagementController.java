@@ -1,9 +1,12 @@
 package at.qe.skeleton.rest.frontend.controllers;
 
+import at.qe.skeleton.rest.frontend.dtos.CredentialsDto;
 import at.qe.skeleton.rest.frontend.dtos.UserxDto;
 import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.rest.frontend.payload.response.MessageResponse;
 import at.qe.skeleton.services.AuthenticationService;
 import at.qe.skeleton.services.UserxService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
@@ -12,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
-@RequestMapping(value = "/api/users", produces = "application/json")
+@RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserManagementController {
 
   private final UserxService userxService;
@@ -38,11 +41,9 @@ public class UserManagementController {
   }
 
   @DeleteMapping("/delete/{id}")
-  public ResponseEntity<Map<String, String>> deleteUser(@PathVariable String id) {
+  public ResponseEntity<MessageResponse> deleteUser(@PathVariable String id) {
     userxService.deleteUser(id);
-    Map<String, String> response = new HashMap<>();
-    response.put("message", "User deleted");
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(new MessageResponse("User deleted"));
   }
 
   @PutMapping("/update")
@@ -58,19 +59,15 @@ public class UserManagementController {
   }
 
   @PostMapping("/validate")
-  public ResponseEntity<UserxDto> validateUser(@RequestBody Map<String, String> credentials) {
-    String username = credentials.get("username");
-    String password = credentials.get("password");
-    UserxDto isValidUser = userxService.validateUser(username, password);
+  public ResponseEntity<UserxDto> validateUser(@RequestBody CredentialsDto credentials) {
+    UserxDto isValidUser =
+        userxService.validateUser(credentials.username(), credentials.password());
     return ResponseEntity.ok(isValidUser);
   }
 
   @PostMapping("/enable")
-  public ResponseEntity<Map<String, String>> enableUser(
-      @RequestBody Map<String, String> credentials) {
-    String username = credentials.get("username");
-    String password = credentials.get("password");
-    userxService.enableUser(username, password);
-    return ResponseEntity.ok(Map.of("message", "User enabled"));
+  public ResponseEntity<MessageResponse> enableUser(@RequestBody CredentialsDto credentials) {
+    userxService.enableUser(credentials.username(), credentials.password());
+    return ResponseEntity.ok(new MessageResponse("User enabled"));
   }
 }
