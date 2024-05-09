@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
-import { User } from '../../models/user.model';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { Router } from '@angular/router';
@@ -60,9 +59,16 @@ export class UsersComponent implements OnInit {
 
   deleteSelectedUsers(userId: string): void {
     console.log('Delete user with ID: ', userId);
-    this.usersService.deleteUser(userId);
-    this.messages = [{ severity: 'success', summary: 'Success', detail: 'User deleted successfully' }];
-    this.loadUsers();
+    this.usersService.deleteUser(userId).subscribe({
+      next: () => {
+        this.messages = [{ severity: 'success', summary: 'Success', detail: 'User deleted successfully' }];
+        this.loadUsers();
+      },
+      error: (error) => {
+        console.error('Failed to delete user:', error);
+        this.messages = [{ severity: 'error', summary: 'Error', detail: 'Failed to delete user' }];
+      },
+    });
   }
 
   loadUsers() {
