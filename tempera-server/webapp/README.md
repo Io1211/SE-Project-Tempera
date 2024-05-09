@@ -10,7 +10,7 @@ When the backend is running, it can be executed by using `npm run build-api`.
 For it to work, Java needs to be installed locally on the system and JAVA_HOME needs to be set as an environment variable.
 (At least Java 11 is required)
 
-Also note that for some reason JSON is not used by default for the generated API client so in every Controller the `RequestMapping` annotation needs to have `produces = "application/json"`.
+Also note that for some reason JSON is not used by default for the generated API client so in every Controller the `RequestMapping` annotation needs to have `produces = MediaType.APPLICATION_JSON_VALUE`.
 
 ## Development server
 
