@@ -1,9 +1,10 @@
 .gitignore
+.openapi-generator-ignore
 README.md
 api.module.ts
 api/api.ts
 api/authController.service.ts
-api/homeController.service.ts
+api/dashboardController.service.ts
 api/measurementController.service.ts
 api/peripheryConnectionController.service.ts
 api/timeRecordController.service.ts
@@ -14,8 +15,8 @@ git_push.sh
 index.ts
 model/accessPointDto.ts
 model/colleagueStateDto.ts
+model/dashboardDataResponse.ts
 model/credentialsDto.ts
-model/homeDataResponse.ts
 model/loginRequest.ts
 model/measurementDto.ts
 model/messageResponse.ts
