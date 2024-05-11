@@ -17,7 +17,7 @@ import { ButtonModule } from 'primeng/button';
 import RolesEnum = UserxDto.RolesEnum;
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-dashboard',
   standalone: true,
   imports: [
     NgIf,
