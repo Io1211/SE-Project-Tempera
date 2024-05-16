@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
-import {UsersService} from "../../_services/users.service";
-import {RoomService} from "../../_services/room.service";
-import {Room} from "../../models/room.model";
-import {TableModule} from "primeng/table";
-import {CardModule} from "primeng/card";
-import {NgForOf} from "@angular/common";
+import { ActivatedRoute } from '@angular/router';
+import { RoomControllerService, Room } from '../../../api';
+import { RoomService } from '../../_services/room.service';
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { NgForOf } from '@angular/common';
 
 @Component({
   selector: 'app-room-details',
@@ -13,10 +12,10 @@ import {NgForOf} from "@angular/common";
   imports: [
     TableModule,
     CardModule,
-    NgForOf
+    NgForOf,
   ],
   templateUrl: './room-details.component.html',
-  styleUrl: './room-details.component.css'
+  styleUrl: './room-details.component.css',
 })
 export class RoomDetailsComponent {
   private roomId!: string;
@@ -24,7 +23,7 @@ export class RoomDetailsComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private roomService: RoomService,
+    private roomService: RoomControllerService,
   ) {
   }
 

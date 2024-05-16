@@ -49,15 +49,15 @@ export class UsersComponent implements OnInit {
     if (filterValue) {
       this.filteredUsers = this.users.filter(user =>
         user.username.toLowerCase().includes(filterValue.toLowerCase()) ||
-        user.firstName.toLowerCase().includes(filterValue.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(filterValue.toLowerCase()),
+        user.firstName?.toLowerCase().includes(filterValue.toLowerCase()) ||
+        user.lastName?.toLowerCase().includes(filterValue.toLowerCase()),
       );
     } else {
       this.filteredUsers = this.users;
     }
   }
 
-  deleteSelectedUsers(userId: string): void {
+  deleteSelectedUser(userId: string): void {
     console.log('Delete user with ID: ', userId);
     this.usersService.deleteUser(userId).subscribe({
       next: () => {

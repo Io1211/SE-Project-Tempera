@@ -1,3 +1,5 @@
+import { UserxDto } from '../../api';
+
 export interface User {
   id: string;
   firstName: string;
@@ -26,5 +28,5 @@ export enum State {
 
 export interface DropdownOptionUser {
   label: string;
-  value: User;
+  value: UserxDto;
 }

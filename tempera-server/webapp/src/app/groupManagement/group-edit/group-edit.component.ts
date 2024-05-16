@@ -1,15 +1,15 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
-import {DropdownOptionUser, User} from "../../models/user.model";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {GroupService} from "../../_services/group.service";
-import {Group} from "../../models/group.model";
-import {UsersService} from "../../_services/users.service";
-import {DropdownModule} from "primeng/dropdown";
-import {InputTextModule} from "primeng/inputtext";
-import {ButtonModule} from "primeng/button";
-import {NgIf} from "@angular/common";
-import {MessageModule} from "primeng/message";
-import {GroupUpdateDTO} from "../../models/groupDtos";
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { DropdownOptionUser, User } from '../../models/user.model';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { GroupService } from '../../_services/group.service';
+import { Group } from '../../models/group.model';
+import { UserManagementControllerService, UserxDto } from '../../../api';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { NgIf } from '@angular/common';
+import { MessageModule } from 'primeng/message';
+import { GroupUpdateDTO } from '../../models/groupDtos';
 
 @Component({
   selector: 'app-group-edit',
@@ -23,25 +23,25 @@ import {GroupUpdateDTO} from "../../models/groupDtos";
     MessageModule,
   ],
   templateUrl: './group-edit.component.html',
-  styleUrl: './group-edit.component.css'
+  styleUrl: './group-edit.component.css',
 })
-export class GroupEditComponent implements OnInit, OnChanges{
+export class GroupEditComponent implements OnInit, OnChanges {
 
   groupForm: FormGroup;
   groupLeads: DropdownOptionUser[] = [];
 
-  @Input({required: true}) group!: Group;
+  @Input({ required: true }) group!: Group;
   @Output() editComplete = new EventEmitter<unknown>();
 
   constructor(
     private fb: FormBuilder,
     private groupService: GroupService,
-    private usersService: UsersService
+    private usersService: UserManagementControllerService,
   ) {
     this.groupForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required]],
-      groupLead: [null, [Validators.required]]
+      groupLead: [null, [Validators.required]],
     });
   }
 
@@ -57,10 +57,10 @@ export class GroupEditComponent implements OnInit, OnChanges{
 
   fetchGroupLeads() {
     this.usersService.getAllUsers().subscribe({
-      next: (users: User[]) => {
+      next: (users: UserxDto[]) => {
         this.groupLeads = users.map(user => ({
           label: `${user.firstName} ${user.lastName}`,
-          value: user
+          value: user,
         }));
         if (this.group) {
           this.populateForm();
@@ -68,7 +68,7 @@ export class GroupEditComponent implements OnInit, OnChanges{
       },
       error: (error) => {
         console.error('Error loading users:', error);
-      }
+      },
     });
   }
 
@@ -76,7 +76,7 @@ export class GroupEditComponent implements OnInit, OnChanges{
     this.groupForm.patchValue({
       name: this.group.name,
       description: this.group.description,
-      groupLead: this.groupLeads.find(lead => lead.value.username === this.group.groupLead.id)
+      groupLead: this.groupLeads.find(lead => lead.value.username === this.group.groupLead.id),
     });
   }
 
@@ -86,7 +86,7 @@ export class GroupEditComponent implements OnInit, OnChanges{
         groupId: Number(this.group.id),
         name: this.groupForm.value.name,
         description: this.groupForm.value.description,
-        groupLead: this.groupForm.value.groupLead.value.username
+        groupLead: this.groupForm.value.groupLead.value.username,
       };
       this.groupService.updateGroup(dto).subscribe({
         next: (response) => {
@@ -95,7 +95,7 @@ export class GroupEditComponent implements OnInit, OnChanges{
         },
         error: (error) => {
           console.error('Error updating group:', error);
-        }
+        },
       });
     }
   }
