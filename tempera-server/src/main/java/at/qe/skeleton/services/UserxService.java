@@ -150,10 +150,11 @@ public class UserxService implements UserDetailsService {
     }
     user.setFirstName(userxDTO.firstName());
     user.setLastName(userxDTO.lastName());
-    if(!userxDTO.password().equals(user.getPassword())){
-    user.setPassword(passwordEncoder.encode(userxDTO.password()));}
+    if (!userxDTO.password().equals(user.getPassword())) {
+      user.setPassword(passwordEncoder.encode(userxDTO.password()));
+    }
     user.setEmail(userxDTO.email());
-    user.setRoles(new HashSet<>(userxDTO.getRoles()));
+    user.setRoles(new HashSet<>(userxDTO.roles()));
     user.setEnabled(userxDTO.enabled());
     user.setUpdateDate(LocalDateTime.now());
     user.setUpdateUser(getAuthenticatedUser());
@@ -162,13 +163,13 @@ public class UserxService implements UserDetailsService {
 
   public UserxDto convertToDTO(Userx user) {
     return new UserxDto(
-            user.getUsername(),
-            user.getFirstName(),
-            user.getLastName(),
-            user.getEmail(),
-            user.getPassword(),
-            user.isEnabled(),
-            new ArrayList<>(user.getRoles()));
+        user.getUsername(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.getEmail(),
+        user.getPassword(),
+        user.isEnabled(),
+        new ArrayList<>(user.getRoles()));
   }
 
   public Userx convertToEntity(UserxDto userxDTO) {
@@ -179,7 +180,7 @@ public class UserxService implements UserDetailsService {
     user.setEmail(userxDTO.email());
     user.setPassword(passwordEncoder.encode(userxDTO.password()));
     user.setEnabled(userxDTO.enabled());
-    user.setRoles(new HashSet<>(userxDTO.getRoles()));
+    user.setRoles(new HashSet<>(userxDTO.roles()));
     return user;
   }
 
