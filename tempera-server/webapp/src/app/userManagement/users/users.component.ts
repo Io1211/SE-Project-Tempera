@@ -75,7 +75,6 @@ export class UsersComponent implements OnInit {
     this.usersService.getAllUsers().subscribe(users => {
       this.users = users;
       this.filteredUsers = users;
-      console.log('update');
     });
   }
 
@@ -114,7 +113,6 @@ export class UsersComponent implements OnInit {
 
   viewUserDetails(userId: string) {
     this.router.navigate(['/user', userId]);
-    console.log(userId);
   }
 
 }

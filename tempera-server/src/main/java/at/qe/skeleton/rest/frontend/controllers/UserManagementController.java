@@ -60,8 +60,7 @@ public class UserManagementController {
 
   @PostMapping("/validate")
   public ResponseEntity<UserxDto> validateUser(@RequestBody CredentialsDto credentials) {
-    UserxDto isValidUser =
-        userxService.validateUser(credentials.username(), credentials.password());
+    UserxDto isValidUser = userxService.validateUser(credentials.username(), credentials.password());
     return ResponseEntity.ok(isValidUser);
   }
 
@@ -70,4 +69,11 @@ public class UserManagementController {
     userxService.enableUser(credentials.username(), credentials.password());
     return ResponseEntity.ok(new MessageResponse("User enabled"));
   }
+
+  @GetMapping("/managers")
+    public ResponseEntity<List<UserxDto>> getManagers() {
+        List<UserxDto> managers = userxService.getManagers().stream().map(userxService::convertToDTO).toList();
+        return ResponseEntity.ok(managers);
+    }
+
 }

@@ -1,8 +1,8 @@
-import asyncio
 import logging
+from asyncio import TaskGroup
 from typing import Dict, Any, Sequence, Tuple, Literal
 
-import sqlalchemy.orm
+import requests
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -18,38 +18,43 @@ logger = logging.getLogger(f"tempera.{__name__}")
 DataType = Literal["TimeRecord", "Measurement"]
 
 
-def _get_tempera_station(session: sqlalchemy.orm.Session) -> TemperaStation:
-    tempera_station = session.scalars(
-        select(TemperaStation).where(TemperaStation.id == shared.current_station_id)
-    ).first()
-    if not tempera_station:
-        logger.critical(
-            f"Currently connected station {shared.current_station_id} not found in the database. "
-            "The station should have been saved upon first connection. Check the logs for possible errors."
-        )
-        raise ValueError
-
-    return tempera_station
-
-
 def _get_from_database(
-    session: sqlalchemy.orm.Session, *, kind: DataType
+    *, kind: DataType
 ) -> Tuple[Sequence[TimeRecord | Measurement], TemperaStation]:
-    tempera_station = _get_tempera_station(session)
+    """
 
-    result = None
-    if kind == "TimeRecord":
-        result = session.scalars(
-            select(TimeRecord)
-            .where(TimeRecord.tempera_station_id == shared.current_station_id)
-            .order_by(TimeRecord.start.desc())
-        ).all()
-    elif kind == "Measurement":
-        result = session.scalars(
-            select(Measurement)
-            .where(Measurement.tempera_station_id == shared.current_station_id)
-            .order_by(Measurement.timestamp.desc())
-        ).all()
+    :param kind:
+    :return:
+    """
+    with Session(shared.db_engine) as session:
+        tempera_station = session.scalars(
+            select(TemperaStation).where(TemperaStation.id == shared.current_station_id)
+        ).first()
+        if not tempera_station:
+            logger.critical(
+                f"Currently connected station {shared.current_station_id} not found in the database. "
+                "The station should have been saved upon first connection. Check the logs for possible errors."
+            )
+            raise ValueError
+
+        result = None
+        match kind:
+            case "TimeRecord":
+                result = session.scalars(
+                    select(TimeRecord)
+                    .where(TimeRecord.tempera_station_id == shared.current_station_id)
+                    .order_by(TimeRecord.start.asc())
+                ).all()
+            case "Measurement":
+                result = session.scalars(
+                    select(Measurement)
+                    .where(Measurement.tempera_station_id == shared.current_station_id)
+                    .order_by(Measurement.timestamp.asc())
+                ).all()
+        if not result:
+            logger.warning(
+                f"No {kind}(s) found for station {shared.current_station_id}."
+            )
 
     return result, tempera_station
 
@@ -60,12 +65,21 @@ def _build_payload(
     *,
     kind: DataType,
 ) -> Dict[str, Any]:
+    """
+
+    :param tempera_station:
+    :param data:
+    :param kind:
+    :return:
+    """
     match kind:
         case "Measurement":
             return {
                 "access_point_id": shared.config["access_point_id"],
                 "tempera_station_id": tempera_station.id,
-                "timestamp": f"{data.timestamp}",  # datetime is not serializable -> to string
+                # datetime is not serializable -> to string
+                # web server expects 'T' separated date & time, not ' ' separated
+                "timestamp": f"{data.timestamp}".replace(" ", "T"),
                 "temperature": data.temperature,
                 "irradiance": data.irradiance,
                 "humidity": data.humidity,
@@ -75,7 +89,7 @@ def _build_payload(
             return {
                 "access_point_id": shared.config["access_point_id"],
                 "tempera_station_id": tempera_station.id,
-                "start": f"{data.start}",
+                "start": f"{data.start}".replace(" ", "T"),
                 # ms / 1_000 = seconds (cast back to int because division turns the value automatically to
                 # float)
                 "duration": int(data.duration / 1_000),
@@ -85,26 +99,30 @@ def _build_payload(
 
 
 async def send_data(*, kind: DataType):
-    if kind not in ["Measurement", "TimeRecord"]:
-        logger.critical(f"Can't handle data of the {kind} type.")
-        raise ValueError
+    """
 
-    with Session(shared.db_engine) as session:
-        data, tempera_station = _get_from_database(session, kind=kind)
+    :param kind:
+    :return:
+    """
+    match kind:
+        case "Measurement":
+            endpoint = "measurement"
+        case "TimeRecord":
+            endpoint = "time_record"
+        case _:
+            logger.critical(f"Can't handle data of the {kind} type.")
+            raise ValueError
 
-        if not data:
-            logger.warning(f"No measurements found for station {tempera_station.id}")
+    data, tempera_station = _get_from_database(kind=kind)
 
-        payloads = [_build_payload(tempera_station, item, kind=kind) for item in data]
+    if not data:
+        logger.warning(f"No measurements found for station {tempera_station.id}")
 
-        match kind:
-            case "Measurement":
-                endpoint = "measurement"
-            case "TimeRecord":
-                endpoint = "time_record"
+    payloads = [_build_payload(tempera_station, item, kind=kind) for item in data]
 
-        async with asyncio.TaskGroup() as tg:
-            logger.info(f"Sending {len(data)} {kind}(s).")
+    logger.info(f"Sending {len(payloads)} {kind}(s).")
+    try:
+        async with TaskGroup() as tg:
             _ = [
                 tg.create_task(
                     make_request(
@@ -116,24 +134,42 @@ async def send_data(*, kind: DataType):
                 )
                 for payload in payloads
             ]
+    except* requests.exceptions.ConnectionError:
+        logger.error(
+            f"Failed to send data to the {endpoint} API endpoint. "
+            "Couldn't establish a connection to the web server "
+            f"at {shared.config['webserver_address']}."
+        )
+        raise ConnectionError from None
 
-        _safe_delete_data(session, data, kind=kind)
+    _safe_delete_data(data, kind=kind)
 
 
 def _safe_delete_data(
-    session, data: Sequence[Measurement | TimeRecord], *, kind: DataType
+    data: Sequence[Measurement | TimeRecord], *, kind: DataType
 ) -> None:
-    # Remove the time_record with auto_update == True from the list of those to be deleted
-    # so that it keeps being updated at every etl cycle.
-    # ETL should ensure that only the very last time_record can have auto_update == True
-    if kind == "TimeRecord":
-        data = list(filter(lambda time_record: not time_record.auto_update, data))
+    """
 
-    [session.delete(item) for item in data]
-    session.commit()
+    :param data:
+    :param kind:
+    :return:
+    """
+    # Don't delete the most recent time record.
+    # This is the only time record that isn't concluded (i.e., doesn't have an end).
+    # Note: it doesn't matter whether auto update is True or False for this measurement.
+    if kind == "TimeRecord":
+        data = data[:-1]
+
+    with Session(shared.db_engine) as session:
+        [session.delete(item) for item in data]
+        session.commit()
 
 
 async def send_measurements_and_time_records():
-    async with asyncio.TaskGroup() as tg:
-        _ = tg.create_task(send_data(kind="Measurement"))
-        _ = tg.create_task(send_data(kind="TimeRecord"))
+    """
+    Wrapper around :func:`~send_data` to send measurements and time records with one function call.
+
+    :return:
+    """
+    await send_data(kind="Measurement")
+    await send_data(kind="TimeRecord")

@@ -1,6 +1,8 @@
 import asyncio
 import logging.config
+import sys
 
+import bleak.exc
 from bleak import BleakClient
 
 from logging_conf import config
@@ -41,9 +43,13 @@ async def send_data() -> None:
 
 # @retry()
 async def main():
-    async with asyncio.TaskGroup() as tg:
-        _ = tg.create_task(utils.init_globals())
-        tempera_station = tg.create_task(bleclient.discovery_loop())
+    try:
+        async with asyncio.TaskGroup() as tg:
+            _ = tg.create_task(utils.init_globals())
+            tempera_station = tg.create_task(bleclient.discovery_loop())
+    except* bleak.exc.BleakError:
+        logger.critical("Bluetooth is off. Turn on Bluetooth and try again :)")
+        sys.exit(0)
 
     tempera_station = tempera_station.result()
     async with BleakClient(tempera_station) as client:
@@ -68,7 +74,7 @@ async def main():
                 # starting with device discovery. This is sort of a 'goto'.
                 scan_order = tg.create_task(bleclient.get_scan_order())
 
-                measurements = tg.create_task(get_measurements(client))
+                _measurements = tg.create_task(get_measurements(client))
 
                 # Sending interval is the timeout of data sending from the raspberry to the web server.
                 # Here it is also used as the data collection interval for simplicity and convenience.
@@ -84,7 +90,6 @@ async def main():
                 logger.info("Scan order received. Returning to device discovery.")
                 raise RuntimeError
 
-            measurements.result()
             await send_data()
 
 
