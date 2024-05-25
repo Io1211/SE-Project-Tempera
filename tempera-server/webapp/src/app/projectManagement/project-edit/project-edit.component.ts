@@ -28,7 +28,7 @@ import {ProjectUpdateDTO} from "../../models/projectDtos";
 export class ProjectEditComponent implements OnChanges, OnInit {
 
   projectForm: FormGroup;
-  managers: string[] = [];
+  managers: any[] = [];
   projectDetails!: ProjectDetailsDto;
   @Input({required: true}) project!: Project;
   @Output() editComplete = new EventEmitter<boolean>();
@@ -50,7 +50,6 @@ export class ProjectEditComponent implements OnChanges, OnInit {
     this.projectService.getProjectById(this.project?.projectId).subscribe({
       next: (data) => {
         this.projectDetails = data;
-        this.populateForm();
         this.fetchManagers();
       },
       error: (error) => {
@@ -67,7 +66,7 @@ export class ProjectEditComponent implements OnChanges, OnInit {
       this.projectForm.patchValue({
         name: this.projectDetails.simpleProjectDto.name,
         description: this.projectDetails.simpleProjectDto.description,
-        manager: this.projectDetails.manager.username,
+        manager: this.managers.find(manager => manager.value === this.projectDetails.manager.username)
       });
       console.log('Populated form:', this.projectForm.value);
     }
@@ -80,7 +79,7 @@ export class ProjectEditComponent implements OnChanges, OnInit {
         projectId: this.projectDetails.simpleProjectDto.projectId,
         name: this.projectForm.value.name,
         description: this.projectForm.value.description,
-        manager: this.projectForm.value.manager
+        manager: this.projectForm.value.manager.value
       }
       console.log('Dto', dto);
       this.projectService.updateProject(dto).subscribe({
@@ -101,8 +100,8 @@ export class ProjectEditComponent implements OnChanges, OnInit {
     this.usersService.getAllManagers().subscribe({
       next: (users: User[]) => {
         console.log('Loaded users:', users);
-        this.managers = users.map(user => user.username);
-        console.log('User dropdown options:', this.managers);
+        this.managers = users.map(user => ({ label: `${user.firstName} ${user.lastName}`, value: user.username }));
+        this.populateForm();
       },
       error: (error) => console.error('Error loading users:', error)
     });
