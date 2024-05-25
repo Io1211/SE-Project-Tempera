@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ProjectService} from "../../_services/project.service";
-import {Project} from "../../models/project.model";
+import {Project, ProjectDetailsDto} from "../../models/project.model";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
 import {MessageModule} from "primeng/message";
@@ -29,6 +29,7 @@ export class ProjectEditComponent implements OnChanges, OnInit {
 
   projectForm: FormGroup;
   managers: any[] = [];
+  projectDetails!: ProjectDetailsDto;
   @Input({required: true}) project!: Project;
   @Output() editComplete = new EventEmitter<boolean>();
 
@@ -36,47 +37,52 @@ export class ProjectEditComponent implements OnChanges, OnInit {
     this.projectForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required]],
-      manager: [null, [Validators.required]]
+      manager: [null]
     });
   }
 
   ngOnInit() {
+    this.loadProjectDetails();
+
+  }
+
+  loadProjectDetails() {
     this.projectService.getProjectById(this.project?.projectId).subscribe({
       next: (data) => {
-        this.project = data;
+        this.projectDetails = data;
         this.populateForm();
+        this.fetchManagers();
       },
       error: (error) => {
         console.error('Failed to load project details:', error);
       }
     });
-    this.fetchManagers();
   }
-
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ProjectEditComponent: ngOnChanges:', this.project);
-    this.fetchManagers();
-    this.populateForm();
+    this.loadProjectDetails();
   }
 
   private populateForm() {
     if (this.project) {
       this.projectForm.patchValue({
-        name: this.project.name,
-        description: this.project.description,
-        manager: this.managers.find(manager => manager.value.username === this.project.manager.id)
+        name: this.projectDetails.simpleProjectDto.name,
+        description: this.projectDetails.simpleProjectDto.description,
+        manager: this.projectDetails.manager.username,
       });
+      console.log('Populated form:', this.projectForm.value);
     }
   }
 
   onSubmit() {
+    console.log('Submitting form:', this.project);
     if (this.projectForm.valid) {
       const dto: ProjectUpdateDTO = {
-        projectId: this.project.projectId,
+        projectId: this.projectDetails.simpleProjectDto.projectId,
         name: this.projectForm.value.name,
         description: this.projectForm.value.description,
-        manager: this.projectForm.value.manager.value.username
+        manager: this.projectForm.value.manager
       }
+      console.log('Dto', dto);
       this.projectService.updateProject(dto).subscribe({
         next: (response) => {
           console.log('Project updated successfully:', response);
