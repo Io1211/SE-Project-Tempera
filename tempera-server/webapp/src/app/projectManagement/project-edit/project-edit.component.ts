@@ -28,7 +28,7 @@ import {ProjectUpdateDTO} from "../../models/projectDtos";
 export class ProjectEditComponent implements OnChanges, OnInit {
 
   projectForm: FormGroup;
-  managers: any[] = [];
+  managers: string[] = [];
   projectDetails!: ProjectDetailsDto;
   @Input({required: true}) project!: Project;
   @Output() editComplete = new EventEmitter<boolean>();
@@ -101,7 +101,7 @@ export class ProjectEditComponent implements OnChanges, OnInit {
     this.usersService.getAllManagers().subscribe({
       next: (users: User[]) => {
         console.log('Loaded users:', users);
-        this.managers = users.map(user => ({ label: `${user.firstName} ${user.lastName}`, value: user }));
+        this.managers = users.map(user => user.username);
         console.log('User dropdown options:', this.managers);
       },
       error: (error) => console.error('Error loading users:', error)
