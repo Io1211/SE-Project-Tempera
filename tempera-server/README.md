@@ -13,7 +13,7 @@ support for PrimeFaces
 basic functionality for user management and Spring web security
 
 Execute "mvn spring-boot:run" to start the skeleton project and connect to
-http://localhost:8080/ to access the skeleton web application. You may login
+http://localhost:4200/ to access the skeleton web application. You may login
 with "admin" and "passwd".
 Feel free to use this skeleton project as you see fit - but keept in mind that
 this project is primarilly provided to be used for educational purposes. Don't
