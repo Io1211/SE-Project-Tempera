@@ -19,6 +19,11 @@ INSERT INTO USERX (ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, USERNAME, CREATE_US
 INSERT INTO USERX_USERX_ROLE (USERX_USERNAME, ROLES) VALUES
     ('elvis', 'ADMIN'), ('elvis', 'EMPLOYEE');
 
+INSERT INTO USERX (ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, USERNAME, CREATE_USER_USERNAME, CREATE_DATE, state, state_visibility) VALUES
+    (TRUE, 'Test', 'Manager1', '$2a$10$UEIwGPJpM6Kfdk3.c6RLDOTtpDfXymwkqAL5LpiRZgizuShpwlq7u', 'testmanager1', 'admin', '2016-01-01 00:00:00', 'OUT_OF_OFFICE', 'PUBLIC');
+INSERT INTO USERX_USERX_ROLE (USERX_USERNAME, ROLES) VALUES
+    ('testmanager1', 'MANAGER'), ('testmanager1', 'EMPLOYEE');
+
 -- some Projects
 INSERT INTO project (id, name, description, manager_username) VALUES
     (-1, 'Serious Business', 'This project beuts you aus', 'MariaTheresa'),
@@ -32,7 +37,17 @@ INSERT INTO project (id, name, description, manager_username) VALUES
     (-9, 'Quality Assurance Enhancement', 'This project focuses on improving the quality control processes to ensure product quality and reliability.', 'MariaTheresa'),
     (-10, 'Marketing Campaign Launch', 'This project involves planning and executing a new marketing campaign to attract customers.', 'MariaTheresa'),
     (-11, 'Training and Development Program', 'This project focuses on providing training and development opportunities for employees to enhance their skills and performance.', 'MariaTheresa'),
-    (-12, 'Infrastructure Upgrade', 'This project involves upgrading the company''s IT infrastructure to improve efficiency and security.', 'MariaTheresa');
+    (-12, 'Infrastructure Upgrade', 'This project involves upgrading the company''s IT infrastructure to improve efficiency and security.', 'MariaTheresa'),
+    (-13, 'Test Project 1', 'This project can be used for the test script.', 'testmanager1'),
+    (-14, 'Test Project 2', 'This project can be used for the test script.', 'testmanager1'),
+    (-15, 'Test Project 3', 'This project can be used for the test script.', 'testmanager1');
+
+-- Test users required for the test script:
+INSERT INTO USERX (ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, USERNAME, CREATE_USER_USERNAME, CREATE_DATE, state, state_visibility, email) VALUES
+    (TRUE, 'Test', 'Admin1', '$2a$10$UEIwGPJpM6Kfdk3.c6RLDOTtpDfXymwkqAL5LpiRZgizuShpwlq7u', 'testadmin1', 'testadmin1', '2016-01-01 00:00:00', 'OUT_OF_OFFICE', 'PUBLIC', 'test@example.com'),
+    (TRUE, 'Test', 'Groupleader1', '$2a$10$UEIwGPJpM6Kfdk3.c6RLDOTtpDfXymwkqAL5LpiRZgizuShpwlq7u', 'testgroupleader1', 'testadmin1', '2016-01-01 00:00:00', 'OUT_OF_OFFICE', 'PUBLIC', 'test@example.com'),
+    (TRUE, 'Test', 'Employee1', '$2a$10$UEIwGPJpM6Kfdk3.c6RLDOTtpDfXymwkqAL5LpiRZgizuShpwlq7u', 'testemployee1', 'testadmin1', '2016-01-01 00:00:00', 'OUT_OF_OFFICE', 'PUBLIC', 'test@example.com'),
+    (TRUE, 'Test', 'Employee2', '$2a$10$UEIwGPJpM6Kfdk3.c6RLDOTtpDfXymwkqAL5LpiRZgizuShpwlq7u', 'testemployee2', 'testadmin1', '2016-01-01 00:00:00', 'OUT_OF_OFFICE', 'PUBLIC', 'test@example.com');
 
 -- these users can be used to display as colleagues for john doe
 INSERT INTO userx (enabled, default_project_id, state, state_visibility, create_date, update_date, create_user_username, update_user_username, username, email, first_name, last_name, password) VALUES
@@ -58,6 +73,12 @@ INSERT INTO userx_userx_role (userx_username, roles) VALUES
     ('peterparker', 'GROUPLEAD'),
     ('tonystark', 'GROUPLEAD');
 
+INSERT INTO userx_userx_role (userx_username, roles) VALUES
+    ('testadmin1', 'EMPLOYEE'), ('testadmin1', 'ADMIN'),
+    ('testgroupleader1', 'EMPLOYEE'), ('testgroupleader1', 'GROUPLEAD'),
+    ('testemployee1', 'EMPLOYEE'),
+    ('testemployee2', 'EMPLOYEE');
+
 -- add some Groups to test db
 INSERT INTO groupx (id, group_lead_username, description, name) VALUES
     (-1, 'peterparker', 'this is just for testing', 'Research Team'),
@@ -65,14 +86,31 @@ INSERT INTO groupx (id, group_lead_username, description, name) VALUES
     (-3, 'tonystark', 'this is also just for testing', 'Marketing Team'),
     (-4, 'tonystark', 'this is also just for testing', 'Expert Team');
 
+-- Groups used for test script
+INSERT INTO groupx (id, group_lead_username, description, name) VALUES
+    (-5, 'testgroupleader1', 'This group contains two employees.', 'Test group 1'),
+    (-6, 'testgroupleader1', 'This group contains one employee.', 'Test group 2'),
+    (-7, 'testgroupleader1', 'This group contains no employees.', 'Test group 3');
+
 -- add some of the created projects to some GroupxProject Objects:
 -- add Serious Business, Expansion, Innovation, Efficiency,Sustainability and Customer Satisfaction to testGroup1
 INSERT INTO groupx_project_object (group_id, project_id) VALUES
     (-1, -1), (-1, -2), (-1, -3), (-1, -4), (-1,-5), (-1, -6);
-
 -- add Product Development, Cost Reduction, Quality Assurance, Marketing Campaign Launch, Training and Development and Infrastructure Upgrade to testGroup2
 INSERT INTO groupx_project_object (group_id, project_id) VALUES
     (-2, -7), (-2, -8), (-2, -9), (-2, -10), (-2, -11), (-2, -12);
+
+-- Link groups and projects of test script
+INSERT INTO groupx_project_object (group_id, project_id) VALUES
+    (-5, -13), (-6, -13), (-6, -14), (-7, -15);
+
+-- Link test users via group to projects
+INSERT INTO groupx_project_object_contributors (groupx_projects_group_id, groupx_projects_project_id, contributors_username) VALUES
+    (-5, -13, 'testemployee1'), (-6, -13, 'testemployee1'), (-6, -14, 'testemployee1'), (-5, -13, 'testemployee2');
+
+-- Link test users to groups
+INSERT INTO groupx_members (groups_id, members_username) VALUES
+    (-5, 'testemployee1'), (-5, 'testemployee2'), (-6, 'testemployee1');
 
 INSERT INTO groupx_project_object_contributors (groupx_projects_group_id, groupx_projects_project_id, contributors_username) VALUES
     (-1, -1, 'admin'),
@@ -95,7 +133,6 @@ INSERT INTO groupx_project_object_contributors (groupx_projects_group_id, groupx
     (-2, -10, 'johndoe'),
     (-2, -11, 'johndoe'),
     (-2, -12, 'johndoe');
-
 
 INSERT INTO groupx_members (groups_id, members_username) VALUES
     (-1, 'johndoe'),
@@ -193,6 +230,12 @@ INSERT INTO room (room_id) VALUES
     ('room_11'),
     ('room_12');
 
+-- Test rooms:
+INSERT INTO room (room_id) VALUES
+    ('Test_room_1'),
+    ('Test_room_2'),
+    ('Test_room_3');
+
 INSERT INTO access_point (id, is_healthy, enabled, room_room_id) VALUES
     ('123e4567-e89b-12d3-a456-426614174001', TRUE, TRUE, 'room_1'),
     ('456e4567-e89b-12d3-a456-426614174001', FALSE, TRUE, 'room_2'),
@@ -200,6 +243,13 @@ INSERT INTO access_point (id, is_healthy, enabled, room_room_id) VALUES
     ('111e4567-e89b-12d3-a456-426614174001', TRUE, TRUE, 'room_10'),
     ('222e4567-e89b-12d3-a456-426614174001', TRUE, TRUE, 'room_11'),
     ('333e4567-e89b-12d3-a456-426614174001', TRUE, TRUE, 'room_12');
+
+-- Test accesspoints
+INSERT INTO access_point (id, is_healthy, enabled, room_room_id) VALUES
+    ('100e4567-e89b-12d3-a456-426614174001', TRUE, TRUE, 'Test_room_1'),
+    ('200e4567-e89b-12d3-a456-426614174001', FALSE, TRUE, 'Test_room_2'),
+    ('300e4567-e89b-12d3-a456-426614174001', FALSE, FALSE, 'Test_room_3');
+
 
 INSERT INTO TEMPERA_STATION (IS_HEALTHY, ENABLED, access_point_id, USER_USERNAME, ID) VALUES
     (TRUE, TRUE, '123e4567-e89b-12d3-a456-426614174001', 'admin', 'tempera_station_1'),
@@ -215,6 +265,9 @@ INSERT INTO TEMPERA_STATION (IS_HEALTHY, ENABLED, access_point_id, USER_USERNAME
     (TRUE, TRUE, '333e4567-e89b-12d3-a456-426614174001', 'brucewayne', 'TEMP130'),
     (FALSE, FALSE, '333e4567-e89b-12d3-a456-426614174001', 'clarkkent', 'TEMP131');
 
+-- Assign test tempera stations
+INSERT INTO TEMPERA_STATION (IS_HEALTHY, ENABLED, access_point_id, USER_USERNAME, ID) VALUES
+    (TRUE, TRUE, '100e4567-e89b-12d3-a456-426614174001', 'testadmin1', 'tempera_station_2');
 
 INSERT INTO SENSOR (SENSOR_TYPE, SENSOR_ID, TEMPERA_ID, UNIT) VALUES
     ('TEMPERATURE', -1, 'tempera_station_1', 'CELSIUS'),
@@ -306,9 +359,6 @@ INSERT INTO measurement (measurement_value, sensor_sensor_id, timestamp, sensor_
     (890.0, -13, '2024-05-11T15:45:00', 'TEMP131');
 
 -- Default tips
--- 1. add ThresholdTips, a lower and upper one for each of the sensors
--- 2. add Modification reason
--- 3. add Thresholds
 INSERT INTO threshold_tip (id, tip) VALUES
     (-1, 'Heizen: Nutzen Sie Heizkörper beziehungsweise die entsprechenden Bedienfelder zur Raumklimasteuerung\nSchließen von Zugluftquellen: Überprüfen Sie Fenster und Türen und schließen Sie diese, um Zugluft zu reduzieren\nSchichtung von Kleidung: Im Fall z.B. eines technischen Defekts können vorübergehend mehrere Schichten warmer Kleidung Abhilfe schaffen\n'),
     (-2, 'Lüften: Öffnen Sie Fenster und Türen in den kühleren Morgen- oder Abendstunden um frische Luft hereinzulassen\nVerwendung von Ventilatoren: Verwenden Sie Ventilatoren, um die Luftzirkulation zu verbessern und für eine kühlere Atmosphäre zu sorgen\nVerdunkelung: Schließen Sie Vorhänge oder Jalousien um die direkte Sonneneinstrahlung zu reduzieren\nVerwendung von Klimaanlagen: Wenn möglich, verwenden Sie Klimaanlagen um die Raumtemperatur effektiv zu senken.\nReduzierung interner Wärmequellen: Schalten Sie elektronische Geräte aus oder reduzieren Sie deren Nutzung, um die interne Wärmeabgabe im Raum zu minimieren.\n'),
