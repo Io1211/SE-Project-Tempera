@@ -250,7 +250,6 @@ INSERT INTO access_point (id, is_healthy, enabled, room_room_id) VALUES
     ('200e4567-e89b-12d3-a456-426614174001', FALSE, TRUE, 'Test_room_2'),
     ('300e4567-e89b-12d3-a456-426614174001', FALSE, FALSE, 'Test_room_3');
 
-
 INSERT INTO TEMPERA_STATION (IS_HEALTHY, ENABLED, access_point_id, USER_USERNAME, ID) VALUES
     (TRUE, TRUE, '123e4567-e89b-12d3-a456-426614174001', 'admin', 'tempera_station_1'),
     (FALSE, FALSE, '123e4567-e89b-12d3-a456-426614174001', 'MariaTheresa', 'tempera_station_disabled_2'),
